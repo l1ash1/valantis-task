@@ -1,0 +1,38 @@
+.input-component {
+  position: relative;
+  margin-right: 10px;
+
+  .form-control {
+    max-width: 400px;
+    height: 100%;
+
+    &_disable {
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.5s
+    }
+
+    &_enable {
+      opacity: 1;
+      transition: 0.5s;
+      pointer-events: all;
+    }
+
+    &_error {
+      border-color: red;
+
+      &:focus {
+        border-color: red;
+        box-shadow: 0 0 0 0.25rem rgba(208, 13, 13, 0.25)
+      }
+    }
+  }
+
+  &__error-text {
+    position: absolute;
+    top: -30px;
+    font-size: 9px;
+    color: red;
+  }
+}
+
