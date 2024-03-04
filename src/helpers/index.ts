@@ -21,7 +21,7 @@ export const validateFunction = (type: validationType, value: string) => {
       }
 
     case 'string':
-      const reg = /^[аa-яz\s]+$/
+      const reg = /^[аa-яz\s&]+$/
       const isValidString = reg.test(value.toLocaleLowerCase())
       if (isValidString) {
         return 'success'
