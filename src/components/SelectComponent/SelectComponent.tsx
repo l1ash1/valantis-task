@@ -9,15 +9,15 @@ import './SelectComponent.scss';
 
 
 interface IProps {
-  fields: string[],
-  filterField?: string
+  options: string[],
+  selectField?: string
   handlerChange: (value: string) => void
 }
 
 const SelectComponent = (
   {
-    fields,
-    filterField,
+    options,
+    selectField,
     handlerChange
   }: IProps
 ) => {
@@ -28,8 +28,8 @@ const SelectComponent = (
       defaultValue=''
       onChange={(e) => handlerChange(e.target.value)}
     >
-      <option selected={!filterField && true} value=''>Выбрать поле</option>
-      {fields.map((field) =>
+      <option selected={!selectField && true} value=''>Выбрать поле</option>
+      {options.map((field) =>
         <option
           key={field}
           value={field}

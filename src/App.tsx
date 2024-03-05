@@ -24,6 +24,8 @@ const App = () => {
     isFilter,
     errorFilter,
     filterData,
+    maxPages,
+    brands,
     setPageFunction,
     getFilterData,
     setFilterValueFunction,
@@ -37,16 +39,24 @@ const App = () => {
       <div className='container'>
         <Form className='filter-block'>
           <SelectComponent
-          fields={fields}
-          filterField={filterField}
+            options={fields}
+            selectField={filterField}
           handlerChange={setFilterFieldFunction}
           />
-          <InputComponent
-            filterField={filterField}
-            value={valueInputFilter}
-            handlerChange={setFilterValueFunction}
-            error={errorFilter}
+          {filterField !== 'brand' &&
+            <InputComponent
+              filterField={filterField}
+              value={valueInputFilter}
+              handlerChange={setFilterValueFunction}
+              error={errorFilter}
+            />
+          }
+          {filterField === 'brand' &&
+          <SelectComponent
+              options={brands}
+              handlerChange={setFilterValueFunction}
           />
+          }
           <ButtonComponent
             variant='primary'
             text={isFilter? 'Обновить фильтр' : 'Добавить фильтр'}
@@ -55,19 +65,20 @@ const App = () => {
           />
           {isFilter &&
               <ButtonComponent
-              variant='primary'
-              text='Удалить фильтр'
-              filterField={filterField}
-              onClickFunction={deleteFilterData}
+                variant='primary'
+                text='Удалить фильтр'
+                filterField={filterField}
+                onClickFunction={deleteFilterData}
               />
           }
         </Form>
         <TableComponent
           loading={loading}
-          products={isFilter ? filterData[page-1] : products}
+          products={isFilter ? filterData : products}
         />
           <PaginationComponent
               page={page}
+              maxPages={maxPages}
               setPageFunction={isFilter ? setPageWithFilterDataFunction : setPageFunction}
           />
       </div>

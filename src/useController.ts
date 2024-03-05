@@ -4,21 +4,25 @@ import {
   getFieldsProducts,
   getFilterInfoProducts,
   getInfoProducts,
+  getMaxPagesProducts,
+  getBrands,
 } from 'api/service';
 import { paginateArray, validateFunction } from 'helpers';
-import { IProduct } from 'types/productsTypes';
+import { IProduct, ISetPagesParams } from 'types/productsTypes';
 
 
 export default function useController() {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
+  const [maxPages, setMaxPages] = useState<number>(1);
   const [fields, setFields] = useState<string[]>([]);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [filterField, setFilterField] = useState<string>();
   const [valueInputFilter, setValueInputFilter] = useState<string>('');
   const [isFilter, setIsFilter] = useState<boolean>(false);
-  const [errorFilter, setErrorFilter] = useState('');
+  const [errorFilter, setErrorFilter] = useState<string>('');
   const [filterData, setFilterData] = useState<Array<IProduct[]>>([]);
+  const [brands, setBrands] = useState<string[]>([]);
 
   const getData = async (): Promise<void> => {
     setLoading(true)
@@ -31,11 +35,28 @@ export default function useController() {
     }
   }
 
-  const setPageFunction = (count: number): void => {
-    const curPage = page + count
+  const getMaxPagesFunction = async ():Promise<void> => {
+    const data = await getMaxPagesProducts()
+    if (data) {
+      setMaxPages(data)
+    }
+  }
 
-    if (curPage > 0 && products.length > 0) {
-      setPage(curPage)
+  const getBrandsFunction = async ():Promise<void> => {
+    const data = await getBrands()
+    if (data) {
+      setBrands(data)
+    }
+  }
+
+  const setPageFunction = ({onePageStep, requiredPage}: ISetPagesParams): void => {
+    if (onePageStep) {
+      if (onePageStep > 0 && products.length > 0) {
+        setPage(onePageStep)
+      }
+    }
+    if (requiredPage) {
+      setPage(requiredPage)
     }
   }
 
@@ -47,6 +68,7 @@ export default function useController() {
 
     if (validationResult === 'success') {
       setPage(1)
+      setMaxPages(1)
       setFilterData([])
       setLoading(true)
       setIsFilter(true)
@@ -58,16 +80,21 @@ export default function useController() {
     if (data) {
       const arr = paginateArray(data, 50)
       setFilterData(arr)
+      setMaxPages(arr.length)
       setProducts(data)
       setLoading(false)
     }
   }
 
-  const setPageWithFilterDataFunction = (count: number): void => {
-    const curPage = page + count
+  const setPageWithFilterDataFunction = ({onePageStep, requiredPage}: ISetPagesParams): void => {
+    if(onePageStep) {
+      if (onePageStep > 0 && filterData.length > 0 && filterData.length >= onePageStep) {
+        setPage(onePageStep)
+      }
+    }
 
-    if (curPage > 0 && filterData.length > 0 && filterData.length >= curPage) {
-      setPage(curPage)
+    if (requiredPage) {
+      setPage(requiredPage)
     }
   }
 
@@ -107,13 +134,14 @@ export default function useController() {
   useEffect(() => {
     if (!isFilter) {
       getData().then()
+      getMaxPagesFunction().then()
     }
   }, [page, isFilter])
 
   useEffect(() => {
     getFields().then()
+    getBrandsFunction().then()
   }, [])
-
 
   return {
     loading,
@@ -124,7 +152,9 @@ export default function useController() {
     valueInputFilter,
     isFilter,
     errorFilter,
-    filterData,
+    filterData: filterData[page-1],
+    maxPages,
+    brands,
     setPageFunction,
     getFilterData,
     setFilterValueFunction,

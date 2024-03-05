@@ -20,9 +20,30 @@ export const getIdsProducts = async ({page}: IParamsGetIds):Promise<string[]> =>
         }
       })
       const idsProductsResult = await responsePromise.json()
-      const uniqueIdsProducts: string[] = doUniqueIds(idsProductsResult.result)
 
-      return uniqueIdsProducts
+      return doUniqueIds(idsProductsResult.result)
+    } catch (e) {
+      console.log('getIdsProducts@========>', e)
+
+      if (++count === maxTries) throw e;
+    }
+  }
+}
+
+export const getMaxPagesProducts = async ():Promise<number> => {
+  let count = 0;
+  const maxTries = 2;
+
+  while (true) {
+    try {
+      const responsePromise = await fetchWrapper({
+        data: {
+          action: 'get_ids',
+        }
+      })
+      const idsProductsResult = await responsePromise.json()
+
+      return Math.ceil(idsProductsResult.result.length/50)
     } catch (e) {
       console.log('getIdsProducts@========>', e)
 
@@ -52,6 +73,30 @@ export const getFieldsProducts = async ():Promise<string[]> => {
   }
 }
 
+export const getBrands = async ():Promise<string[]> => {
+  let count = 0;
+  const maxTries = 2;
+  while (true) {
+    try {
+      const responsePromise = await fetchWrapper({
+        data: {
+          action: 'get_fields',
+          params: {field: 'brand'}
+        }
+      })
+      const data = await responsePromise.json()
+
+      return Array.from(new Set(data.result as string[]))
+        .sort((cur, prev) => cur.localeCompare(prev))
+        .filter(Boolean)
+    } catch (e) {
+      console.log('getFilterIdsProducts@========>', e)
+
+      if (++count === maxTries) throw e;
+    }
+  }
+}
+
 export const getFilterIdsProducts = async ({param, value}: any):Promise<string[]> => {
   value = value.trim()
   if (param === 'price') {
@@ -70,9 +115,8 @@ export const getFilterIdsProducts = async ({param, value}: any):Promise<string[]
         }
       })
       const idsProductsResult = await responsePromise.json()
-      const uniqueIdsProducts: string[] = doUniqueIds(idsProductsResult.result)
 
-      return uniqueIdsProducts
+      return doUniqueIds(idsProductsResult.result)
     } catch (e) {
       console.log('getFilterIdsProducts@========>', e)
 
@@ -98,9 +142,7 @@ export const getInfoProducts = async ({page}: IParamsGetIds): Promise<IProduct[]
       const response = await responsePromise.json()
       const arrProducts: IProduct[] = response.result
 
-      if (arrProducts) {
-        return doUniqueProducts(arrProducts, (n: IProduct) => n.id)
-      }
+      return doUniqueProducts(arrProducts, (n: IProduct) => n.id)
     } catch (e) {
       console.log('getInfoProducts@========>', e)
 
@@ -127,9 +169,7 @@ export const getFilterInfoProducts = async ({param, value}: any): Promise<IProdu
       const response = await responsePromise.json()
       const arrProducts: IProduct[] = response.result
 
-      if (arrProducts) {
-        return doUniqueProducts(arrProducts, (item: IProduct) => item.id)
-      }
+      return doUniqueProducts(arrProducts, (item: IProduct) => item.id)
     } catch (e) {
       console.log('getFilterInfoProducts@========>', e)
 
